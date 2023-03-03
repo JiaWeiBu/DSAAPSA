@@ -73,6 +73,8 @@ Case 2 (start with even digit)	659-8776	026598776
 
 using namespace std;
 
+//file id filter for student.txt
+//VARIABLE.substr(<INSERT HERE>, line.length() - <INSERT HERE>).c_str())
 #define STU_F_ID 13
 #define STU_F_NAME 7
 #define STU_F_COURSE 9
@@ -166,10 +168,6 @@ bool CreateStuList(const char* filename, List* list) {
 	ifstream fin;
 	string line;
 
-	//check if list is empty
-	if (!(list->empty()))
-		return false;
-
 	fin.open(filename);
 	if (!fin.is_open())
 		return false;
@@ -218,8 +216,10 @@ bool CreateStuList(const char* filename, List* list) {
 }
 
 bool DeleteStudent(List* list, char* id) {
-	if (list->empty())
+	if (list->empty()) {
+		cout << "Student list is empty." << endl;
 		return false;
+	}
 	for (int i = 1; i <= list->count; i++) {
 		Node* temp = list->find(i);
 		if (strcmp(temp->item.id, id) == 0) {
