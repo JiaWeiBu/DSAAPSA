@@ -1,7 +1,6 @@
 #include "Student.h"
 
-Student::Student()
-{
+Student::Student(){
 	strcpy_s(name, "");
 	strcpy_s(id, "");
 	strcpy_s(course, "");
@@ -11,22 +10,19 @@ Student::Student()
 	exam_cnt = 0;
 }
 
-bool Student::compareName1(Student stud)
-{
+bool Student::compareName1(Student stud){
 	if (strcmp(name, stud.name) >= 0)
 		return true;
 	return false;
 }
 
-bool Student::compareID(Student stud)
-{
+bool Student::compareID(Student stud){
 	if (strcmp(id, stud.id) == 0)
 		return true;
 	return false;
 }
 
-void Student::print(ostream& out)
-{
+void Student::print(ostream& out){
 	out << "\n\nName: " << name;
 	out << "\nId: " << id;
 	out << "\nCourse: " << course;
@@ -36,8 +32,7 @@ void Student::print(ostream& out)
 	out << endl;
 }
 
-bool Student::calculateCurrentCGPA()
-{
+bool Student::calculateCurrentCGPA(){
 	double sum = 0;
 	Exam temp;
 	int total_credits = 0;
