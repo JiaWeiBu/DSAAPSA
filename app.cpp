@@ -73,16 +73,194 @@ Case 2 (start with even digit)	659-8776	026598776
 
 using namespace std;
 
-bool CreateStuList(char*, List*);
+#define STU_F_ID 13
+#define STU_F_NAME 7
+#define STU_F_COURSE 9
+#define STU_F_PHONE 15
+
+bool CreateStuList(const char*, List*);
 bool DeleteStudent(List*, char*);
 bool PrintList(List, int);
-bool InsertExamResult(char*, List*);
-bool PrintStatistic(List);
-bool FilterStudent(List, List*, char*, int, int);
-bool UpdateIDandPhone(List*);
-bool FindPotentialFirstClass(List, List*, char*);
+//bool PrintStatistic(List);
+//bool FilterStudent(List, List*, char*, int, int);
+//bool UpdateIDandPhone(List*);
+//bool FindPotentialFirstClass(List, List*, char*);
 int menu();
 
 void main() {
-    return;
+	system("cls");
+	int choice;
+	bool function;
+	const char STUDENT_FILE[] = "student.txt";
+	const char EXAM_FILE[] = "exam.txt";
+	List* stud_list,* temp_list;
+	char* id = new char;
+	char* programme = new char;
+	stud_list = new List;
+	temp_list = new List;
+	do {
+		switch (choice = menu())
+		{
+		case 1:
+			stud_list = new List;
+			if (CreateStuList(STUDENT_FILE, stud_list))
+				cout << "Student list created successfully" << endl;
+			else
+				cout << "Student list created unsuccessfully" << endl;
+			system("pause");
+			break;
+		case 2:
+			cout << "Enter student ID to delete: ";
+			cin >> id;
+			if (DeleteStudent(stud_list, id))
+				cout << "Student deleted successfully" << endl;
+			else
+				cout << "Student deleted unsuccessfully" << endl;
+			system("pause");
+			break;
+		case 3:
+			if (PrintList(*stud_list, 1))
+				cout << "Student list printed successfully" << endl;
+			else
+				cout << "Student list printed unsuccessfully" << endl;
+			system("pause");
+			break;
+		case 4:
+			//InsertExamResult(EXAM_FILE, stud_list);
+			break;
+		case 5:
+			//PrintStatistic(*stud_list);
+			break;
+		case 6:
+			//FilterStudent(*stud_list, temp_list, programme, 2020, 30);
+			break;
+		case 7:
+			//UpdateIDandPhone(stud_list);
+			break;
+		case 8:
+			//FindPotentialFirstClass(*stud_list, temp_list, programme);
+		default:
+			break;
+		}
+	} while (choice != 9);
 }
+
+int menu() {
+	system("cls");
+	int choice;
+	cout << "1. Create student list" << endl;
+	cout << "2. Delete Student" << endl;
+	cout << "3. Print student list" << endl;
+	cout << "4. Insert exam result" << endl;
+	cout << "5. Print Exam Statistic" << endl;
+	cout << "6. Filter Student" << endl;
+	cout << "7. Update Student’s ID and Phone" << endl;
+	cout << "8. Find Potential First Class Student" << endl;
+	cout << "9. Exit." << endl;
+	cout << "Enter your choice: ";
+	cin >> choice;
+	return choice;
+}
+
+bool CreateStuList(const char* filename, List* list) {
+	ifstream fin;
+	string line;
+
+	//check if list is empty
+	if (!(list->empty()))
+		return false;
+
+	fin.open(filename);
+	if (!fin.is_open())
+		return false;
+	for (; !fin.eof();) {
+		Student* stu = new Student;
+		for (int j = 0; j < 5; j++) {
+			getline(fin, line);
+			switch (j)
+			{
+			case 0:
+				strcpy_s(stu->id, line.substr(STU_F_ID, line.length() - STU_F_ID).c_str());
+				break;
+			case 1:
+				strcpy_s(stu->name, line.substr(STU_F_NAME, line.length() - STU_F_NAME).c_str());
+				break;
+			case 2:
+				strcpy_s(stu->course, line.substr(STU_F_COURSE, line.length() - STU_F_COURSE).c_str());
+				break;
+			case 3:
+				strcpy_s(stu->phone_no, line.substr(STU_F_PHONE, line.length() - STU_F_PHONE).c_str());
+				break;
+			default:
+				break;
+			}
+		}
+		//check if student is already in the list
+		if (!(list->empty())) {
+			bool duplicate = false;
+			for (int i = 1; i<=list->count; i++) {
+				Node* temp = list->find(i);
+				if (temp->item.compareID(*stu)) {
+					if (strcmp(temp->item.name, stu->name) == 0 && strcmp(temp->item.course, stu->course) == 0 && strcmp(temp->item.phone_no, stu->phone_no) == 0)
+						cout << "Duplicate reocrd <" << stu->id << "> detected." << endl;//duplicate record check
+					else
+						cout << "Duplicate student ID <" << stu->id << "> detected." << endl;//primary key check
+					duplicate = true;
+					break;
+				}
+			}
+			if (duplicate)
+				continue;
+		}
+		list->insert(*stu);
+	}
+	return true;
+}
+
+bool DeleteStudent(List* list, char* id) {
+	if (list->empty())
+		return false;
+	for (int i = 1; i <= list->count; i++) {
+		Node* temp = list->find(i);
+		if (strcmp(temp->item.id, id) == 0) {
+			list->remove(i);
+			return true;
+		}
+	}
+	return false;
+}
+
+//test code
+//bool PrintList(List list, int choice) {
+//	if (list.empty())
+//		return false;
+//	Node *temp = list.head;
+//	bool skip1 = false;
+//	do{
+//		if (skip1)
+//			temp = temp->next;
+//		else
+//			skip1 = true;
+//		switch (choice)
+//		{
+//		case 1:
+//			cout << "ID: " << temp->item.id << endl;
+//			cout << "Name: " << temp->item.name << endl;
+//			cout << "Course: " << temp->item.course << endl;
+//			cout << "Phone: " << temp->item.phone_no << endl;
+//			cout << endl << endl;
+//			break;
+//		case 2:
+//			cout << "ID: " << temp->item.id << endl;
+//			cout << "Name: " << temp->item.name << endl;
+//			cout << "Course: " << temp->item.course << endl;
+//			cout << "Phone: " << temp->item.phone_no << endl;
+//			cout << endl << endl;
+//			break;
+//		default:
+//			break;
+//		}
+//	} 
+//	while (temp->next != NULL);
+//	return true;
+//}
