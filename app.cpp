@@ -99,7 +99,8 @@ bool PrintList(List list, int choice) {
 			temp = temp->next;
 		else
 			skip1 = true;
-		switch (choice) { // dont know why it say bypss the outfile****
+		ofstream outfile("student_result.txt");
+		switch (choice) { 
 		case 1:
 			cout << "ID: " << temp->item.id << endl;
 			cout << "Name: " << temp->item.name << endl;
@@ -111,7 +112,7 @@ bool PrintList(List list, int choice) {
 			cout << endl;
 			break;
 		case 2:
-			ofstream outfile("student_result.txt");
+			
 			if (!outfile.is_open())
 				return false;
 			outfile << "ID: " << temp->item.id << endl;
