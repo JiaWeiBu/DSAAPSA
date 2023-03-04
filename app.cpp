@@ -32,48 +32,6 @@ You need to write the following functions in main().
 
 7.	Write a function bool UpdateIDandPhone(List *list) that will update the student ID and phone number for all the students in list list.  The student ID will be updated according to their as shown in Table 1 below. To update phone number, you need to change all the phone numbers in list list from 7 digits to 9 digits as shown in Table 2. If the first digit in the phone number starts with odd number, add a leading digit 01 and remove the dash. If the first digit is even number, add a leading 02 and remove dash. The function will return false if list is empty or true otherwise. Call PrintList function in main to display the student list to screen after return from the function to display the changes in every student.
 
-bool PrintList(List list, int choice) {
-	if (list.empty())
-		return false;
-	Node* temp = list.head;
-	bool skip1 = false;
-	do {
-		if (skip1)
-			temp = temp->next;
-		else
-			skip1 = true;
-		switch (choice) { // dont know why it say bypss the outfile
-		case 1:
-			cout << "ID: " << temp->item.id << endl;
-			cout << "Name: " << temp->item.name << endl;
-			cout << "Course: " << temp->item.course << endl;
-			cout << "Phone: " << temp->item.phone_no << endl;
-			if (temp->item.exam_cnt == 0) {
-				cout << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
-			}
-			cout << endl;
-			break;
-		case 2:
-			ofstream outfile("student_result.txt");
-			if (!outfile.is_open())
-				return false;
-			outfile << "ID: " << temp->item.id << endl;
-			outfile << "Name: " << temp->item.name << endl;
-			outfile << "Course: " << temp->item.course << endl;
-			outfile << "Phone: " << temp->item.phone_no << endl;
-			if (temp->item.exam_cnt == 0) {
-				outfile << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
-			}
-			outfile << endl;
-			outfile.close();
-			break;
-		default:
-			break;
-		}
-	} while (temp->next != NULL);
-	return true;
-}
-
 Table 1 Current ID and Updated ID
 
 Course	Current ID	Updated ID
@@ -108,9 +66,9 @@ Case 2 (start with even digit)	659-8776	026598776
 9. Exit.
 */
 
-#include	<cstdlib>
-#include	"List.h"
-#include	"Student.h"
+#include    <cstdlib>
+#include    "List.h"
+#include    "Student.h"
 #include    "Subject.h"
 #include    "Node.h"
 #include    "Exam.h"
@@ -130,6 +88,50 @@ bool FindPotentialFirstClass(List, List*, char*);
 int menu();
 
 using namespace std;
+
+bool PrintList(List list, int choice) {
+	if (list.empty())
+		return false;
+	Node* temp = list.head;
+	bool skip1 = false;
+	do {
+		if (skip1)
+			temp = temp->next;
+		else
+			skip1 = true;
+		switch (choice) { // dont know why it say bypss the outfile****
+		case 1:
+			cout << "ID: " << temp->item.id << endl;
+			cout << "Name: " << temp->item.name << endl;
+			cout << "Course: " << temp->item.course << endl;
+			cout << "Phone: " << temp->item.phone_no << endl;
+			if (temp->item.exam_cnt == 0) {
+				cout << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
+			}
+			cout << endl;
+			break;
+		case 2:
+			ofstream outfile("student_result.txt");
+			if (!outfile.is_open())
+				return false;
+			outfile << "ID: " << temp->item.id << endl;
+			outfile << "Name: " << temp->item.name << endl;
+			outfile << "Course: " << temp->item.course << endl;
+			outfile << "Phone: " << temp->item.phone_no << endl;
+			if (temp->item.exam_cnt == 0) {
+				outfile << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
+			}
+			outfile << endl;
+			outfile.close();
+			break;
+		default:
+			break;
+		}
+	} while (temp->next != NULL);
+	return true;
+}
+
+
 
 
 
