@@ -132,6 +132,72 @@ bool PrintList(List list, int choice) {
 	return true;
 }
 
+bool InsertExamResult(const char* filename, List* list)
+{
+	ifstream infile(filename);
+	if (!infile) {
+		cout << "Error: Unable to open input file " << filename << endl;
+		return false;
+	}
+
+	int studentID, year, numOfSubjects, trimester;
+	double gpa;
+	string subjectCode, subjectName, grade;
+	int creditHours, gradePoint;
+
+	while (infile >> studentID >> year >> trimester >> gpa >> numOfSubjects) {
+		Exam exam;
+		exam.year = year;
+		exam.trimester = trimester;
+		exam.gpa = gpa;
+		exam.numOfSubjects = numOfSubjects;
+
+		for (int i = 0; i < numOfSubjects; i++) {
+			infile >> subjectCode >> subjectName >> creditHours >> grade;
+
+			if (grade == "A+") gradePoint = 10;
+			else if (grade == "A") gradePoint = 9;
+			else if (grade == "A-") gradePoint = 8;
+			else if (grade == "B+") gradePoint = 7;
+			else if (grade == "B") gradePoint = 6;
+			else if (grade == "B-") gradePoint = 5;
+			else if (grade == "C+") gradePoint = 4;
+			else if (grade == "C") gradePoint = 3;
+			else if (grade == "C-") gradePoint = 2;
+			else if (grade == "D") gradePoint = 1;
+			else gradePoint = 0;
+
+			Subject subject;
+			subject.setCode(subjectCode.c_str());
+			subject.setName(subjectName.c_str());
+			subject.setCreditHours(creditHours);
+			subject.setMarks(marks);
+			subject.setGradePoint(gradePoint);
+		}
+
+		bool found = false;
+		Node* current = list->head;
+		while (current != NULL) {
+			if (current->item.id == studentID) {
+				found = true;
+				current->item.InsertExam(exam);
+				break;
+			}
+			current = current->next;
+		}
+
+		if (!found) {
+			cout << "Error: Student with ID " << studentID << " not found in the list" << endl;
+			return false;
+		}
+	}
+
+	infile.close();
+
+	return true;
+}
+
+
 
 
 
