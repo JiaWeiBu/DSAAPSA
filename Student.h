@@ -36,10 +36,10 @@ The following member functions are given in the struct:
 
 struct Student
 {
-	char name[30];
-	char id[7];
-	char course[2];
-	char phone_no[8];
+	char name[31];
+	char id[8];
+	char course[3];
+	char phone_no[9];
 	double current_cgpa;
 	int totalCreditsEarned;
 	Exam exam[10];
