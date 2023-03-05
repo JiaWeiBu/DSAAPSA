@@ -90,46 +90,52 @@ int menu();
 using namespace std;
 
 bool PrintList(List list, int choice) {
-	if (list.empty())
-		return false;
-	Node* temp = list.head;
-	bool skip1 = false;
-	do {
-		if (skip1)
-			temp = temp->next;
-		else
-			skip1 = true;
-		ofstream outfile("student_result.txt");
-		switch (choice) { 
-		case 1:
-			cout << "ID: " << temp->item.id << endl;
-			cout << "Name: " << temp->item.name << endl;
-			cout << "Course: " << temp->item.course << endl;
-			cout << "Phone: " << temp->item.phone_no << endl;
-			if (temp->item.exam_cnt == 0) {
-				cout << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
-			}
-			cout << endl;
-			break;
-		case 2:
-			
-			if (!outfile.is_open())
-				return false;
-			outfile << "ID: " << temp->item.id << endl;
-			outfile << "Name: " << temp->item.name << endl;
-			outfile << "Course: " << temp->item.course << endl;
-			outfile << "Phone: " << temp->item.phone_no << endl;
-			if (temp->item.exam_cnt == 0) {
-				outfile << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
-			}
-			outfile << endl;
-			outfile.close();
-			break;
-		default:
-			break;
-		}
-	} while (temp->next != NULL);
-	return true;
+    if (list.empty())
+        return false;
+    Node* temp = list.head;
+    bool skip1 = false;
+    ofstream outfile;
+    switch (choice) {
+    case 1:
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            cout << "ID: " << temp->item.id << endl;
+            cout << "Name: " << temp->item.name << endl;
+            cout << "Course: " << temp->item.course << endl;
+            cout << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                cout << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
+            }
+            cout << endl;
+            } while (temp->next != NULL);
+        break;
+    case 2:
+        outfile.open("student_result.txt");
+        if (!outfile.is_open())
+            return false;
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            outfile << "ID: " << temp->item.id << endl;
+            outfile << "Name: " << temp->item.name << endl;
+            outfile << "Course: " << temp->item.course << endl;
+            outfile << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                outfile << "THIS STUDENT HAVEN’T TAKEN ANY EXAM YET" << endl;
+            }
+            outfile << endl;
+        } while (temp->next != NULL);
+        outfile.close();
+        break;
+    default:
+        break;
+    }
+    return true;
 }
 
 bool InsertExamResult(const char* filename, List* list)
