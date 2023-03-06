@@ -342,3 +342,62 @@ bool InsertExamResult(const char* filename, List* list) {
 	infile.close();
 	return true;
 }
+
+
+
+//this is for negetive error
+bool InsertExamResult(const char* filename, List* list) {
+    ifstream infile(filename);
+    if (!infile.is_open()) {
+        return false;
+    }
+
+    // Iterate through every record in the file
+    Exam exam;
+    char std_id[10];
+    while (infile >> std_id >> exam.trimester >> exam.year >> exam.gpa >> exam.numOfSubjects) {
+        // Check for negative GPA values
+        if (exam.gpa < 0) {
+            cout << "Error: Negative GPA value found for student with ID " << std_id << endl;
+            continue;
+        }
+
+        // Find the student with the matching ID
+        Node* node = list->head;
+        while (node != nullptr && strcmp(node->item.id, std_id) != 0) {
+            node = node->next;
+        }
+
+        if (node == nullptr) {
+            // Student not found in the list
+            continue;
+        }
+
+        // Check if the exam already exists for this student
+        bool examExists = false;
+        for (int i = 0; i < node->item.exam_cnt; i++) {
+            Exam& existingExam = node->item.exam[i];
+            if (existingExam.trimester == exam.trimester && existingExam.year == exam.year) {
+                // Exam already exists for this trimester and year
+                examExists = true;
+                break;
+            }
+        }
+
+        if (examExists) {
+            // Duplicate exam record found
+            cout << "Error: Exam record already exists for student with ID " << std_id << " and trimester " << exam.trimester << " year " << exam.year << endl;
+            continue;
+        }
+
+        // Add the exam to the student's list of exams
+        node->item.exam[node->item.exam_cnt] = exam;
+        node->item.exam_cnt++;
+
+        // Recalculate the current CGPA for the student
+        node->item.calculateCurrentCGPA();
+    }
+
+    infile.close();
+    return true;
+}
