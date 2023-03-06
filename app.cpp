@@ -298,54 +298,57 @@ bool PrintList(List list, int choice) {
 }
 
 
-bool InsertExamResult(const char* filename, List* list) {
-	ifstream infile(filename);
-	if (!infile.is_open()) {
-		return false;
-	}
+bool insertExamResult(const char* filename, List* list) {
+    ifstream infile;
+    Node* current_node;
+    char student_id[11];
+    
+    if (list->empty()) {
+        cout << "Error: List is empty." << endl;
+        return false;
+    }
 
-	// Iterate through every record in the file
-	Exam exam;
-	char std_id[10];
-	while (infile >> std_id >> exam.trimester >> exam.year >> exam.gpa >> exam.numOfSubjects) {
-		// Find the student with the matching ID
-		Node* node = list->head;
-		while (node != nullptr && strcmp(node->item.id, std_id) != 0) {
-			node = node->next;
-		}
+    infile.open(filename);
+    if (!infile.is_open()) {
+        cout << "Error: File cannot be opened." << endl;
+        return false;
+    }
 
-		if (node == nullptr) {
-			// Student not found in the list
-			continue;
-		}
+    while (infile >> student_id) {
+        current_node = list->head;
+        bool found_node = false;
+        while (current_node != NULL) {
+            if (strcmp(student_id, current_node->item.id) == 0) {
+                found_node = true;
+                break;
+            }
+            current_node = current_node->next;
+        }
+        if (!found_node) {
+            cout << "Error: Student ID " << student_id << " not found in list." << endl;
+            continue; //move to next line in file
+        }
+        
+        // Check for duplicate records
+        for (int i = 0; i < current_node->item.exam_cnt; i++) {
+            if (current_node->item.exam[i].trimester == current_node->item.exam[current_node->item.exam_cnt].trimester &&
+                current_node->item.exam[i].year == current_node->item.exam[current_node->item.exam_cnt].year) {
+                cout << "Error: Duplicate record for student ID " << student_id << " found. Ignoring this record." << endl;
+                continue; //move to next line in file
+            }
+        }
 
-		// Check if the exam already exists for this student
-		bool examExists = false;
-		for (int i = 0; i < node->item.exam_cnt; i++) {
-			Exam& existingExam = node->item.exam[i];
-			if (existingExam.trimester == exam.trimester && existingExam.year == exam.year) {
-				// Exam already exists for this trimester and year
-				examExists = true;
-				break;
-			}
-		}
-
-		if (examExists) {
-			// Duplicate exam record found
-			cout << "Error: Exam record already exists for student with ID " << std_id << " and trimester " << exam.trimester << " year " << exam.year << endl;
-			continue;
-		}
-
-		// Add the exam to the student's list of exams
-		node->item.exam[node->item.exam_cnt] = exam;
-		node->item.exam_cnt++;
-
-		// Recalculate the current CGPA for the student
-		node->item.calculateCurrentCGPA();
-	}
-
-	infile.close();
-	return true;
+        infile >> current_node->item.exam[current_node->item.exam_cnt].trimester >> current_node->item.exam[current_node->item.exam_cnt].year >> current_node->item.exam[current_node->item.exam_cnt].numOfSubjects;
+        for (int i = 0; i < current_node->item.exam[current_node->item.exam_cnt].numOfSubjects; i++) {
+            infile >> current_node->item.exam[current_node->item.exam_cnt].sub[i].subject_code >> current_node->item.exam[current_node->item.exam_cnt].sub[i].subject_name >> current_node->item.exam[current_node->item.exam_cnt].sub[i].credit_hours >> current_node->item.exam[current_node->item.exam_cnt].sub[i].marks;
+        }
+        current_node->item.exam[current_node->item.exam_cnt].calculateGPA();
+        current_node->item.calculateCurrentCGPA();
+        current_node->item.exam_cnt++;
+    }
+    
+    infile.close();
+    return true;
 }
 
 
