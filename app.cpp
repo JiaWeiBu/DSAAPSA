@@ -264,7 +264,7 @@ bool PrintList(List list, int choice) {
             } else {
                 for (int i = 0; i < temp->item.exam_cnt; i++) {
                     cout << "Exam " << i + 1 << ":" << endl;
-                    temp->item.exams[i].print(cout);
+                    temp->item.exam[i].print(cout);
                     cout << endl;
                 }
             }
@@ -289,7 +289,7 @@ bool PrintList(List list, int choice) {
             } else {
                 for (int i = 0; i < temp->item.exam_cnt; i++) {
                     outfile << "Exam " << i + 1 << ":" << endl;
-                    temp->item.exams[i].print(outfile);
+                    temp->item.exam[i].print(outfile);
                     outfile << endl;
                 }
             }
