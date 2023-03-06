@@ -66,10 +66,16 @@ Case 2 (start with even digit)	659-8776	026598776
 9. Exit.
 */
 
-#include "List.h"
-#include <fstream>
-#include <string>
-#include <cstdlib>
+#include    <cstdlib>
+#include    "List.h"
+#include    "Student.h"
+#include    "Subject.h"
+#include    "Node.h"
+#include    "Exam.h"
+#include    <fstream>
+#include    <iomanip>
+#include    <string>
+
 
 using namespace std;
 
