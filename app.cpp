@@ -236,52 +236,60 @@ bool DeleteStudent(List* list, char* id) {
 	return false;
 }
 
-bool PrintList(List list, int choice) {
+bool PrintList(List list, int source) {
     if (list.empty())
         return false;
     Node* temp = list.head;
     bool skip1 = false;
-    ofstream outfile;
-    switch (choice) {
-    case 1:
-        do {
-            if (skip1)
-                temp = temp->next;
-            else
-                skip1 = true;
+    do {
+        if (skip1) {
+            temp = temp->next;
+        } else {
+            skip1 = true;
+        }
+        ofstream outfile("student_result.txt");
+        switch (source) {
+        case 1:
             cout << "ID: " << temp->item.id << endl;
             cout << "Name: " << temp->item.name << endl;
             cout << "Course: " << temp->item.course << endl;
             cout << "Phone: " << temp->item.phone_no << endl;
+            cout << "CGPA: " << temp->item.cgpa << endl;
             if (temp->item.exam_cnt == 0) {
-                cout << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+                cout << "THIS STUDENT HASN'T TAKEN ANY EXAM YET" << endl;
+            } else {
+                cout << "Exam Scores: ";
+                for (int i = 0; i < temp->item.exam_cnt; i++) {
+                    cout << temp->item.exam_scores[i] << " ";
+                }
+                cout << endl;
             }
             cout << endl;
-            } while (temp->next != NULL);
-        break;
-    case 2:
-        outfile.open("student_result.txt");
-        if (!outfile.is_open())
-            return false;
-        do {
-            if (skip1)
-                temp = temp->next;
-            else
-                skip1 = true;
+            break;
+        case 2:
+            if (!outfile.is_open())
+                return false;
             outfile << "ID: " << temp->item.id << endl;
             outfile << "Name: " << temp->item.name << endl;
             outfile << "Course: " << temp->item.course << endl;
             outfile << "Phone: " << temp->item.phone_no << endl;
+            outfile << "CGPA: " << temp->item.cgpa << endl;
             if (temp->item.exam_cnt == 0) {
-                outfile << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+                outfile << "THIS STUDENT HASN'T TAKEN ANY EXAM YET" << endl;
+            } else {
+                outfile << "Exam Scores: ";
+                for (int i = 0; i < temp->item.exam_cnt; i++) {
+                    outfile << temp->item.exam_scores[i] << " ";
+                }
+                outfile << endl;
             }
             outfile << endl;
-        } while (temp->next != NULL);
-        outfile.close();
-        break;
-    default:
-        break;
-    }
+            outfile.close();
+            break;
+        default:
+            break;
+        }
+    } while (temp->next != NULL);
     return true;
 }
 
