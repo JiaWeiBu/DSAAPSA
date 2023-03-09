@@ -369,13 +369,13 @@ bool PrintList(List list, int choice) {
 			outfile << "===================================" << endl;
 			if (temp->item.exam_cnt == 0) {
 				outfile << "************************** " << endl << "This is new student information";
-				temp->item.print(cout);
+				temp->item.print(outfile);
 				outfile << " *************************" << endl;
 				outfile << "THIS STUDENT HAVEN'T TAKEN ANY EXAM YET" << endl;
 			}
 			else {
 				outfile << "Student: ";
-				temp->item.print(cout);
+				temp->item.print(outfile);
 				outfile << endl;
 				for (int i = 0; i < temp->item.exam_cnt; i++) {
 					outfile << "-----------------------------------" << endl;
