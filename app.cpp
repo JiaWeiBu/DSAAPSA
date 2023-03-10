@@ -73,6 +73,8 @@ Case 2 (start with even digit)	659-8776	026598776
 
 using namespace std;
 
+//file id filter for student.txt
+//VARIABLE.substr(<INSERT HERE>, line.length() - <INSERT HERE>).c_str())
 #define STU_F_ID 13
 #define STU_F_NAME 7
 #define STU_F_COURSE 9
@@ -81,7 +83,7 @@ using namespace std;
 bool CreateStuList(const char*, List*);
 bool DeleteStudent(List*, char*);
 bool PrintList(List, int);
-//bool PrintStatistic(List);
+bool PrintStatistic(List);
 //bool FilterStudent(List, List*, char*, int, int);
 //bool UpdateIDandPhone(List*);
 //bool FindPotentialFirstClass(List, List*, char*);
@@ -90,6 +92,7 @@ int menu();
 void main() {
 	system("cls");
 	int choice;
+	int source;
 	bool function;
 	const char STUDENT_FILE[] = "student.txt";
 	const char EXAM_FILE[] = "exam.txt";
@@ -119,14 +122,19 @@ void main() {
 			system("pause");
 			break;
 		case 3:
-			if (PrintList(*stud_list, 1))
+			cout << "Enter 1 to print student list or 2 to print temp list: ";
+			cin >> source;
+			if (PrintList(*stud_list, source))
 				cout << "Student list printed successfully" << endl;
 			else
 				cout << "Student list printed unsuccessfully" << endl;
 			system("pause");
 			break;
 		case 4:
-			//InsertExamResult(EXAM_FILE, stud_list);
+			/*if(InsertExamResult(EXAM_FILE, stud_list))
+				cout << "Exam result inserted successfully" << endl;
+			else
+				cout << "Exam result inserted unsuccessfully" << endl;*/
 			break;
 		case 5:
 			//PrintStatistic(*stud_list);
@@ -154,7 +162,7 @@ int menu() {
 	cout << "4. Insert exam result" << endl;
 	cout << "5. Print Exam Statistic" << endl;
 	cout << "6. Filter Student" << endl;
-	cout << "7. Update Student’s ID and Phone" << endl;
+	cout << "7. Update Student's ID and Phone" << endl;
 	cout << "8. Find Potential First Class Student" << endl;
 	cout << "9. Exit." << endl;
 	cout << "Enter your choice: ";
@@ -237,10 +245,60 @@ bool DeleteStudent(List* list, char* id) {
 	//find node and delete by its position, if id not in node return false
 	for (int i = 1; node != NULL; i++) {
 		if (strcmp(node->item.id, id) == 0) {
+
 			list->remove(i);
 			return true;
 		}
 		node = node->next;
 	}
 	return false;
+}
+
+bool PrintList(List list, int choice) {
+    if (list.empty())
+        return false;
+    Node* temp = list.head;
+    bool skip1 = false;
+    ofstream outfile;
+    switch (choice) {
+    case 1:
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            cout << "ID: " << temp->item.id << endl;
+            cout << "Name: " << temp->item.name << endl;
+            cout << "Course: " << temp->item.course << endl;
+            cout << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                cout << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+            }
+            cout << endl;
+            } while (temp->next != NULL);
+        break;
+    case 2:
+        outfile.open("student_result.txt");
+        if (!outfile.is_open())
+            return false;
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            outfile << "ID: " << temp->item.id << endl;
+            outfile << "Name: " << temp->item.name << endl;
+            outfile << "Course: " << temp->item.course << endl;
+            outfile << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                outfile << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+            }
+            outfile << endl;
+        } while (temp->next != NULL);
+        outfile.close();
+        break;
+    default:
+        break;
+    }
+    return true;
 }

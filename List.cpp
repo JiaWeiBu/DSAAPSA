@@ -1,15 +1,18 @@
+#include <iostream>
 #include "List.h"
+#include "Student.h"
 
 using namespace std;
 
-List::List()
-{
-	count = 0;
+
+List::List() {
 	head = NULL;
+	count = 0;
 }
 
+
 bool List::empty() {
-	if (count == 0) return true;
+	if (count==0) return true;
 	return false;
 }
 
@@ -19,18 +22,18 @@ int List::size() {
 }
 
 
-Node* List::find(int position) {
-	Node* cur;
-
+Node *List::find(int position) {
+	Node	*cur;
+	
 	if (position > count) return NULL;
 	cur = head;
-	for (int count = 1; count < position; count++)
+	for (int count=1; count<position; count++) 
 		cur = cur->next;
 	return cur;
 }
 
 
-bool List::get(int position, type& result) {
+bool List::get(int position, type &result) {
 	if (position > count) return false;
 	result = find(position)->item;
 	return true;
@@ -45,9 +48,9 @@ bool List::set(int position, type newItem) {
 
 
 bool List::insert(int at, type newItem) {// Any simplification can be done on code below?
-	Node* pre, * cur, * tmp = new Node(newItem);
+	Node	*pre, *cur, *tmp = new Node(newItem);
 
-	if (at < 1 || at > count + 1) return false;
+	if (at < 1 || at > count+1) return false;
 	if (!tmp) return false;
 
 	if (empty()) {
@@ -61,7 +64,7 @@ bool List::insert(int at, type newItem) {// Any simplification can be done on co
 		count++;
 		return true;
 	}
-	pre = find(at - 1);
+	pre = find(at-1);
 	cur = pre->next;
 	tmp->next = cur;
 	pre->next = tmp;
@@ -71,7 +74,7 @@ bool List::insert(int at, type newItem) {// Any simplification can be done on co
 
 
 bool List::remove(int from) {
-	Node* pre, * cur;
+	Node	*pre, *cur;
 
 	if (from < 1 || from > count) return false;
 	if (from == 1) {
@@ -81,7 +84,7 @@ bool List::remove(int from) {
 		free(cur);
 		return true;
 	}
-	pre = find(from - 1);
+	pre = find(from-1);
 	cur = pre->next;
 	pre->next = cur->next;
 	free(cur);
@@ -91,7 +94,7 @@ bool List::remove(int from) {
 
 //insert Student according to name
 bool List::insert(type newItem) {
-	Node* pre, * cur, * tmp;
+	Node	*pre, *cur, *tmp;
 
 	tmp = new Node(newItem);
 

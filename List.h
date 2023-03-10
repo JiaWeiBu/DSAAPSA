@@ -1,12 +1,15 @@
-#ifndef List_Obj
-#define List_Obj
+#ifndef List_type
+#define List_type
 
-#include "Node.h"
+#include	"Node.h"
+#include	"Student.h"
 
-struct List {
+
+struct List
+{
 	int count;
-	Node* head;
-	Node* find(int);
+	Node *head;
+	Node *find(int);
 	List();
 	bool empty();
 	int size();
@@ -15,6 +18,10 @@ struct List {
 	bool insert(int, type);  // insert item according to the specified position
 	bool remove(int);
 	bool insert(type); // insert item in ascending order
+
+
 };
 
-#endif // !List_Obj
+
+
+#endif

@@ -1,4 +1,6 @@
+#include <iostream>
 #include "Node.h"
+
 
 using type = Student;
 
