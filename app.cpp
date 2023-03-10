@@ -299,6 +299,7 @@ bool PrintList(List list, int choice) {
 	}
 	return true;
 }
+
 bool InsertExamResult(const char* filename, List* list) {
 	ifstream infile;
 	Node* temp;
@@ -321,13 +322,38 @@ bool InsertExamResult(const char* filename, List* list) {
 	//read in data tuple by tuple
 	con = false;
 	while (infile >> student_id) {
-		temp = list->head;//each search start from head
-		do {// search id in linked list
-			while (temp->next != NULL && strcmp(student_id, temp->item.id) != 0) temp = temp->next;
-			break;
-			temp = temp->next;
-
-		} while (temp != nullptr);
+		// check if the student ID is in the format "BCSXXXXXXXX", "BIAXXXXXXXX", "BIBXXXXXXXX", "BCNXXXXXXXX", or "BCTXXXXXXXX"
+		if (strncmp(student_id, "BCS", 3) == 0 && strlen(student_id) == 10 ||
+			strncmp(student_id, "BIA", 3) == 0 && strlen(student_id) == 10 ||
+			strncmp(student_id, "BIB", 3) == 0 && strlen(student_id) == 10 ||
+			strncmp(student_id, "BCN", 3) == 0 && strlen(student_id) == 10 ||
+			strncmp(student_id, "BCT", 3) == 0 && strlen(student_id) == 10) {
+			// extract the numerical part of the ID
+			char* numeric_id = student_id + 3;
+			// search for the numerical ID in the linked list
+			temp = list->head;
+			do {
+				while (temp->next != NULL && strcmp(numeric_id, temp->item.id) != 0)
+					temp = temp->next;
+				if (strcmp(numeric_id, temp->item.id) == 0)
+					break;
+				temp = temp->next;
+			} while (temp != nullptr);
+		}
+		// if the student ID is not in the format "BCSXXXXXXXX", "BIAXXXXXXXX", "BIBXXXXXXXX", "BCNXXXXXXXX", or "BCTXXXXXXXX"
+		else {
+			// extract the numerical part of the ID
+			char* numeric_id = student_id;
+			// search for the numerical ID in the linked list
+			temp = list->head;
+			do {
+				while (temp->next != NULL && strcmp(numeric_id, temp->item.id) != 0)
+					temp = temp->next;
+				if (strcmp(numeric_id, temp->item.id) == 0)
+					break;
+				temp = temp->next;
+			} while (temp != nullptr);
+		}
 
 		//insert tuple data
 		infile >> trimester >> year;
@@ -352,6 +378,7 @@ bool InsertExamResult(const char* filename, List* list) {
 
 		if (duplicate)
 			continue;
+
 		temp->item.exam[temp->item.exam_cnt].year = year;
 		temp->item.exam[temp->item.exam_cnt].trimester = trimester;
 		infile >> temp->item.exam[temp->item.exam_cnt].numOfSubjects;
@@ -374,6 +401,3 @@ bool InsertExamResult(const char* filename, List* list) {
 	infile.close();
 	return true;
 }
-
-
-
