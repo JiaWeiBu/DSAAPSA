@@ -171,67 +171,85 @@ int menu() {
 }
 
 bool CreateStuList(const char* filename, List* list) {
+	//initialization of variables
 	ifstream fin;
-	string line;
+	Node* node;
+	bool duplicate;
+	char* line = new char;
+	string temp;
 
+	//check if file is open
 	fin.open(filename);
-	if (!fin.is_open())
+	if (!fin.is_open()) {
+		cout << filename << " cannot be opened. " << endl;
 		return false;
-	for (; !fin.eof();) {
-		Student* stu = new Student;
-		for (int j = 0; j < 5; j++) {
-			getline(fin, line);
-			switch (j)
-			{
-			case 0:
-				strcpy_s(stu->id, line.substr(STU_F_ID, line.length() - STU_F_ID).c_str());
-				break;
-			case 1:
-				strcpy_s(stu->name, line.substr(STU_F_NAME, line.length() - STU_F_NAME).c_str());
-				break;
-			case 2:
-				strcpy_s(stu->course, line.substr(STU_F_COURSE, line.length() - STU_F_COURSE).c_str());
-				break;
-			case 3:
-				strcpy_s(stu->phone_no, line.substr(STU_F_PHONE, line.length() - STU_F_PHONE).c_str());
-				break;
-			default:
+	}
+
+	//while (condition) to check if there is new tuple present, if halt iteration.
+	while (fin >> line) {
+		type* stu = new type; //create a new type record
+
+		//format line student id = <id> , while loop take one, 3 more for the rest *note last part is ID
+		fin >> line >> line >> line;
+		strcpy_s(stu->id, line);
+
+		//format line name = <name , unknown length *require getline>
+		fin >> line >> line;
+		getline(fin, temp);
+		strcpy_s(stu->name, temp.c_str());
+
+		//format line course = <course code>
+		fin >> line >> line >> line;
+		strcpy_s(stu->course, line);
+
+		//format line phone number = <XXX-XXXX>
+		fin >> line >> line >> line >> line;
+		strcpy_s(stu->phone_no, line);
+
+		//find duplicate record
+		duplicate = false;
+		node = list->head;
+		while (node != NULL) {
+			if (node->item.compareID(*stu)) {
+				//duplicate record check
+				if (strcmp(node->item.name, stu->name) == 0 && strcmp(node->item.course, stu->course) == 0 && strcmp(node->item.phone_no, stu->phone_no) == 0) cout << "Duplicate reocrd <" << stu->id << "> detected." << endl;
+
+				//primary key check
+				else cout << "Duplicate student ID <" << stu->id << "> detected." << endl;
+
+				//set duplicate true and quit iteration
+				duplicate = true;
 				break;
 			}
+			//no duplicate will search the next node
+			node = node->next;
 		}
-		//check if student is already in the list
-		if (!(list->empty())) {
-			bool duplicate = false;
-			for (int i = 1; i<=list->count; i++) {
-				Node* temp = list->find(i);
-				if (temp->item.compareID(*stu)) {
-					if (strcmp(temp->item.name, stu->name) == 0 && strcmp(temp->item.course, stu->course) == 0 && strcmp(temp->item.phone_no, stu->phone_no) == 0)
-						cout << "Duplicate reocrd <" << stu->id << "> detected." << endl;//duplicate record check
-					else
-						cout << "Duplicate student ID <" << stu->id << "> detected." << endl;//primary key check
-					duplicate = true;
-					break;
-				}
-			}
-			if (duplicate)
-				continue;
-		}
+		if (duplicate) continue;
+
+		//once all check pass, insert to list
 		list->insert(*stu);
 	}
 	return true;
 }
 
 bool DeleteStudent(List* list, char* id) {
+	//check if the list is empty
 	if (list->empty()) {
 		cout << "Student list is empty." << endl;
 		return false;
 	}
-	for (int i = 1; i <= list->count; i++) {
-		Node* temp = list->find(i);
-		if (strcmp(temp->item.id, id) == 0) {
+
+	//initialize variable
+	Node* node = list->head;
+
+	//find node and delete by its position, if id not in node return false
+	for (int i = 1; node != NULL; i++) {
+		if (strcmp(node->item.id, id) == 0) {
+
 			list->remove(i);
 			return true;
 		}
+		node = node->next;
 	}
 	return false;
 }
