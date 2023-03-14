@@ -430,28 +430,25 @@ bool UpdateIDandPhone(List* list) {
 bool FindPotentialFirstClass(List list1, List* list2, char* course) {
 	Node* temp = list1.head;
 	Node* temp2 = list2->head;
-	bool found;
 	int gpa_count;
-	int credit_hr = 0;
+	int credit_hr;
 	if (list1.empty()) {
 		cout << "Student list is empty." << endl;
 		system("PAUSE");
 		return false;
 	}
 	if (!list2->empty()) {
-		cout << "List 2 is Not Empty, now emptying list..." << endl;
-		for (int k = 0; k < list2->size(); k++)
-			list2->remove(k);
+		cout << "List 2 is Not Empty." << endl;
 		system("PAUSE");
 		return false;
 	}
 	do {
-		found = false;
 		if (strcmp(temp->item.course, course) != 0);
 		else {
 			if (temp->item.exam_cnt < 3) break;
 			else {
 				gpa_count = 0;
+				credit_hr = 0;
 				for (int i = 0; i < temp->item.exam_cnt; i++) {
 					for (int j = 0; j < temp->item.exam->numOfSubjects; j++) {
 						credit_hr += temp->item.exam->sub->credit_hours;
@@ -460,15 +457,11 @@ bool FindPotentialFirstClass(List list1, List* list2, char* course) {
 					if (temp->item.exam->gpa < 3.5) break;
 					if (temp->item.exam->gpa >= 3.75) gpa_count++;
 				}
-				if (gpa_count >= 3) {
-					found = true;
-				}
-			}
-			if(found)
-				list2->insert(temp->item);
+				if (gpa_count >= 3) list2->insert(temp->item);
+			}				
 		}
 		temp = temp->next;
 	} while (temp != NULL);
-	if (!list2->empty())found = true;
-	return found;
+	if (!list2->empty())
+		return true;
 }
