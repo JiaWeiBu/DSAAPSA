@@ -1,15 +1,15 @@
-#ifndef Node_obj
-#define Node_obj
+#ifndef Node_type
+#define Node_type
 
-#include "Student.h"
+#include	"Student.h"
 
 using type = Student;
 
-struct Node
-{
+struct Node{
 	type item;
 	Node *next;
 	Node(type);
 };
 
-#endif // !Node_obj
+
+#endif
