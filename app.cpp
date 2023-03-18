@@ -448,17 +448,23 @@ bool FindPotentialFirstClass(List list1, List* list2, char* course) {
 			if (temp->item.exam_cnt < 3) break;
 			else {
 				gpa_count = 0;
-				credit_hr = 0;
 				for (int i = 0; i < temp->item.exam_cnt; i++) {
-					for (int j = 0; j < temp->item.exam->numOfSubjects; j++) {
-						credit_hr += temp->item.exam->sub->credit_hours;
+					credit_hr = 0;
+					for (int j = 0; j < temp->item.exam[i].numOfSubjects; j++) {
+						credit_hr += temp->item.exam[i].sub[j].credit_hours;
 					}
-					if (credit_hr < 12) break;
-					if (temp->item.exam->gpa < 3.5) break;
-					if (temp->item.exam->gpa >= 3.75) gpa_count++;
+					if (credit_hr < 12) {
+						break;
+					}
+					if (temp->item.exam[i].gpa < 3.5) break;
+					if (temp->item.exam[i].gpa >= 3.75) gpa_count++;
 				}
-				if (gpa_count >= 3) list2->insert(temp->item);
-			}				
+				if (gpa_count >= 3) {
+					list2->insert(temp->item);
+				}
+			}
+			
+				
 		}
 		temp = temp->next;
 	} while (temp != NULL);
