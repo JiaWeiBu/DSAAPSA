@@ -318,3 +318,43 @@ bool InsertExamResult(const char* filename, List* list) {
 	return true;
 }
 
+bool UpdateIDandPhone(List* list) {
+	//check if list is empty
+	if (list->empty()) {
+		cout << "The list is empty.";
+		return false;
+	}
+
+	//traverse each node and change the format of the list.
+	Node* node = list->head;
+	char temp_char[12];
+	char temp_phone[10];
+	string temp_string;
+
+	while (node != NULL) {
+		//Student ID B <course> <ID>
+		//initialization
+		strcpy_s(temp_char, "B");
+		strcat_s(temp_char, node->item.course);
+		strcat_s(temp_char, node->item.id);
+		strcpy_s(node->item.id, temp_char);
+
+		//<ODD/EVEN> <PHONE NO first 3> <PHONE NO second 3>
+		//xxx-xxxx //before
+		//012345678
+		//0XOOOOOOO //after
+		if ((node->item.phone_no[0] - '0') % 2 == 1) {
+			temp_string = "01";
+		}
+		else {
+			temp_string = "02";
+		}
+		strcpy_s(temp_phone, temp_string.c_str());
+		strncat_s(temp_phone, node->item.phone_no, 3);
+		strcat_s(temp_phone, node->item.phone_no + 4);
+		strcpy_s(node->item.phone_no, temp_phone);
+		node = node->next;
+	}
+	return true;
+}
+
