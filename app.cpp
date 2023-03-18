@@ -44,6 +44,7 @@ void main() {
 		case 3:
 			cout << "Enter 1 to print student list or 2 to print temp list: ";
 			cin >> source;
+
 			cin.clear();
 			cin.ignore();
 
@@ -197,6 +198,7 @@ bool CreateStuList(const char* filename, List* list) {
 	return true;
 }
 
+
 bool DeleteStudent(List* list, char* id) {
 	//check if the list is empty
 	if (list->empty()) {
@@ -238,6 +240,132 @@ bool DeleteStudent(List* list, char* id) {
 		}
 	}
 	
+	return false;
+}
+
+bool InsertExamResult(const char* filename, List* list) {
+	ifstream infile;
+	char* name_student = new char;
+	char* student_id = new char; // allocate an array of 8 character
+	char del;
+	bool con;
+	int year, trimester, del1;
+
+	//check files and list
+	if (list->empty()) {
+		cout << "List is empty.";
+		return false;
+	}
+	infile.open(filename);
+	if (!(infile.is_open())) {
+		cout << "File cannot be open.";
+		return false;
+	}
+
+	//read in data tuple by tuple
+	con = false;
+	while (infile >> student_id ) {
+		Node* temp = list->head;//each search start from head
+		do {// search id in linked list
+			if (temp->item.id[0] == 'B') {
+				while (temp->next != NULL && strcmp(student_id,temp->item.id+3) != 0) temp = temp->next; //exam_cnt reset here
+				break;
+		
+			}
+
+			else {
+				while (temp->next != NULL && strcmp(student_id, temp->item.id) != 0) temp = temp->next;
+				break;
+			}
+		} while (temp != nullptr);
+
+		//insert tuple data
+		infile >> trimester >> year;
+		bool duplicate = false;
+		for (int k = 0; k < temp->item.exam_cnt; k++) {
+			if ((year == temp->item.exam[k].year) && (trimester == temp->item.exam[k].trimester)) {
+				cout << "Duplicate Exam Record Detected for <" << student_id << ">." << endl;
+				infile >> del1;
+				for (int i = 0; i < del1; i++) {
+					infile >> del;
+					infile >> del;
+					infile >> del;
+					infile >> del;
+				}
+				duplicate = true;
+				break;
+			}
+		}
+
+		if (duplicate)
+			continue;
+
+		temp->item.exam[temp->item.exam_cnt].year = year;
+		temp->item.exam[temp->item.exam_cnt].trimester = trimester;
+		infile >> temp->item.exam[temp->item.exam_cnt].numOfSubjects;
+
+		//insert subject
+		int i = 0;
+		while (i < temp->item.exam[temp->item.exam_cnt].numOfSubjects) {
+			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].subject_code;
+			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].subject_name;
+			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].credit_hours;
+			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].marks;
+			i++;
+		}
+		//calculate gpa and cgpa
+		temp->item.exam[temp->item.exam_cnt++].calculateGPA();
+		temp->item.calculateCurrentCGPA();
+	}
+
+	infile.close();
+	return true;
+}
+
+bool UpdateIDandPhone(List* list) {
+	//check if list is empty
+	if (list->empty()) {
+		cout << "The list is empty.";
+		return false;
+	}
+	//initialize variable
+	Node* node = list->head;
+	string temp_string;
+
+	//detect if the id is in BXXNNNNNNN format , X is course , N is number
+	if (id[0] == 'B') { 
+		string temp_id(id);
+		temp_id.erase(0, 3);
+		id = (char*)temp_id.c_str();
+	}
+
+	//find node and delete by its position, if id not in node return false
+	if (node->item.id[0] != 'B')
+		for (int i = 1; node != NULL; i++) {
+			if (strcmp(node->item.id, id) == 0) {
+				list->remove(i);
+				return true;
+			}
+			node = node->next;
+		}
+	else {
+		for (int i = 1; node != NULL; i++) {
+			//temporary get back the default id format
+			string temp_string(node->item.id);
+			temp_string.erase(0, 3);
+
+			if (strcmp(temp_string.c_str(), id) == 0) {
+				list->remove(i);
+				return true;
+			}
+			node = node->next;
+		}
+		strcpy_s(temp_phone, temp_string.c_str());
+		strncat_s(temp_phone, node->item.phone_no, 3);
+		strcat_s(temp_phone, node->item.phone_no + 4);
+		strcpy_s(node->item.phone_no, temp_phone);
+		node = node->next;
+	}
 	return false;
 }
 
