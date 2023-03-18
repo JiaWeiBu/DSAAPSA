@@ -73,29 +73,31 @@ Case 2 (start with even digit)	659-8776	026598776
 
 using namespace std;
 
+//file id filter for student.txt
+//VARIABLE.substr(<INSERT HERE>, line.length() - <INSERT HERE>).c_str())
+
 #define STU_F_ID 13
 #define STU_F_NAME 7
 #define STU_F_COURSE 9
 #define STU_F_PHONE 15
 
-bool CreateStuList(char*, List*);
+bool CreateStuList(const char*, List*);
 bool DeleteStudent(List*, char*);
 bool PrintList(List, int);
-bool InsertExamResult(char*, List*);
 bool PrintStatistic(List);
-bool FilterStudent(List, List*, char*, int, int);
-bool UpdateIDandPhone(List*);
-bool FindPotentialFirstClass(List, List*, char*);
+//bool FilterStudent(List, List*, char*, int, int);
+//bool UpdateIDandPhone(List*);
+//bool FindPotentialFirstClass(List, List*, char*);
 int menu();
 
 void main() {
-      system("cls");
+	system("cls");
 	int choice;
 	int source;
 	bool function;
 	const char STUDENT_FILE[] = "student.txt";
 	const char EXAM_FILE[] = "exam.txt";
-	List* stud_list, * temp_list;
+	List* stud_list,* temp_list;
 	char* id = new char;
 	char* programme = new char;
 	stud_list = new List;
@@ -130,11 +132,10 @@ void main() {
 			system("pause");
 			break;
 		case 4:
-			if (InsertExamResult(EXAM_FILE, stud_list))
+			/*if(InsertExamResult(EXAM_FILE, stud_list))
 				cout << "Exam result inserted successfully" << endl;
 			else
-				cout << "Exam result inserted unsuccessfully" << endl;
-			system("pause");
+				cout << "Exam result inserted unsuccessfully" << endl;*/
 			break;
 		case 5:
 			//PrintStatistic(*stud_list);
@@ -185,289 +186,217 @@ int menu() {
 }
 
 bool CreateStuList(const char* filename, List* list) {
+	//initialization of variables
 	ifstream fin;
-	string line;
+	Node* node;
+	bool duplicate;
+	char* line = new char;
+	string temp;
 
+	//check if file is open
 	fin.open(filename);
-	if (!fin.is_open())
+	if (!fin.is_open()) {
+		cout << filename << " cannot be opened. " << endl;
 		return false;
-	for (; !fin.eof();) {
-		Student* stu = new Student;
-		for (int j = 0; j < 5; j++) {
-			getline(fin, line);
-			switch (j)
-			{
-			case 0:
-				strcpy_s(stu->id, line.substr(STU_F_ID, line.length() - STU_F_ID).c_str());
-				break;
-			case 1:
-				strcpy_s(stu->name, line.substr(STU_F_NAME, line.length() - STU_F_NAME).c_str());
-				break;
-			case 2:
-				strcpy_s(stu->course, line.substr(STU_F_COURSE, line.length() - STU_F_COURSE).c_str());
-				break;
-			case 3:
-				strcpy_s(stu->phone_no, line.substr(STU_F_PHONE, line.length() - STU_F_PHONE).c_str());
-				break;
-			default:
+	}
+
+	//while (condition) to check if there is new tuple present, if halt iteration.
+	while (fin >> line) {
+		type* stu = new type; //create a new type record
+
+		//format line student id = <id> , while loop take one, 3 more for the rest *note last part is ID
+		fin >> line >> line >> line;
+		strcpy_s(stu->id, line);
+
+		//format line name = <name , unknown length *require getline>
+		fin >> line >> line;
+		getline(fin, temp);
+		strcpy_s(stu->name, temp.c_str());
+
+		//format line course = <course code>
+		fin >> line >> line >> line;
+		strcpy_s(stu->course, line);
+
+		//format line phone number = <XXX-XXXX>
+		fin >> line >> line >> line >> line;
+		strcpy_s(stu->phone_no, line);
+
+		//find duplicate record
+		duplicate = false;
+		node = list->head;
+		while (node != NULL) {
+			if (node->item.compareID(*stu)) {
+				//duplicate record check
+				if (strcmp(node->item.name, stu->name) == 0 && strcmp(node->item.course, stu->course) == 0 && strcmp(node->item.phone_no, stu->phone_no) == 0) cout << "Duplicate reocrd <" << stu->id << "> detected." << endl;
+
+				//primary key check
+				else cout << "Duplicate student ID <" << stu->id << "> detected." << endl;
+
+				//set duplicate true and quit iteration
+				duplicate = true;
 				break;
 			}
+			//no duplicate will search the next node
+			node = node->next;
 		}
-		// check if student is already in the list
-		bool duplicate = false;
-		if (!(list->empty())) {
-			for (int i = 1; i <= list->count; i++) {
-				Node* temp = list->find(i);
-				if (temp->item.compareID(*stu)) {
-					cout << "Duplicate student ID <" << stu->id << "> detected." << endl;
-					duplicate = true;
-					break;
-				}
-			}
-		}
-		if (duplicate)
-			continue;
+		if (duplicate) continue;
+
+		//once all check pass, insert to list
 		list->insert(*stu);
 	}
 	return true;
 }
 
 bool DeleteStudent(List* list, char* id) {
-	Node* temp = list->head;
-	int i = 1;
-
-	while (temp != nullptr && strcmp(temp->item.id, id) != 0) {
-		temp = temp->next;
-		i++;
+	//check if the list is empty
+	if (list->empty()) {
+		cout << "Student list is empty." << endl;
+		return false;
 	}
 
-	if (temp != nullptr) {
-		list->remove(i);
-		return true;
-	}
+	//initialize variable
+	Node* node = list->head;
 
-	cout << "Student not found." << endl;
+	//find node and delete by its position, if id not in node return false
+	for (int i = 1; node != NULL; i++) {
+		if (strcmp(node->item.id, id) == 0) {
+
+			list->remove(i);
+			return true;
+		}
+		node = node->next;
+	}
 	return false;
 }
 
 bool PrintList(List list, int choice) {
-	if (list.empty())
-		return false;
-
-	ofstream outfile("student_result.txt");
-	Node* temp = list.head;
-	switch (choice) {
-	case 1:
-		while (temp != nullptr) {
-			cout << "===================================" << endl;
-			if (temp->item.exam_cnt == 0) {
-				cout << "************************ " << "this is new student information";
-				temp->item.print(cout);
-				cout << " ***********************" << endl;
-				cout << "THIS STUDENT HAVEN'T TAKEN ANY EXAM YET" << endl;
-			}
-			else {
-				cout << "Student: ";
-				temp->item.print(cout);
-				cout << endl;
-				for (int i = 0; i < temp->item.exam_cnt; i++) {
-					cout << "-----------------------------------" << endl;
-					temp->item.exam[i].print(cout);
-				}
-			}
-			cout << "===================================" << endl << endl;
-			temp = temp->next;
-		}
-		break;
-	case 2:
-		if (!outfile.is_open())
-			return false;
-
-		while (temp != nullptr) {
-			outfile << "===================================" << endl;
-			if (temp->item.exam_cnt == 0) {
-				outfile << "************************** " << endl << "This is new student information";
-				temp->item.print(cout);
-				outfile << " *************************" << endl;
-				outfile << "THIS STUDENT HAVEN'T TAKEN ANY EXAM YET" << endl;
-			}
-			else {
-				outfile << "Student: ";
-				temp->item.print(cout);
-				outfile << endl;
-				for (int i = 0; i < temp->item.exam_cnt; i++) {
-					outfile << "-----------------------------------" << endl;
-					temp->item.exam[i].print(outfile);
-				}
-			}
-			outfile << "===================================" << endl << endl;
-			temp = temp->next;
-		}
-		outfile.close();
-		break;
-	default:
-		break;
-	}
-	return true;
-}
-
-bool InsertExamResult(const char* filename, List* list) {
-	ifstream infile;
-	char* student_id = new char; // allocate an array of 8 character
-	char del;
-	bool con;
-	int year, trimester, del1;
-	string temp_string;
-
-	//check files and list
-	if (list->empty()) {
-		cout << "List is empty.";
-		return false;
-	}
-	infile.open(filename);
-	if (!(infile.is_open())) {
-		cout << "File cannot be open.";
-		return false;
-	}
-
-	//read in data tuple by tuple
-	con = false;
-	while (infile >> student_id) {
-		Node* temp = list->head;//each search start from head
-		do {// search id in linked list
-			//if (temp->item.id[0] == 'B') {
-				//for (int i = 3; i < 10; i++)
-				//	temp_string += to_string(temp->item.id[i] - '0');
-				//if (temp->item.id[0] == 'B') {
-			if (temp->item.id[0] == 'B') {
-				while (temp->next != NULL && strcmp(&(temp->item.id[3]), student_id) != 0) temp = temp->next;
-				break;
-				//temp = temp->next;
-			}
-
-			else {
-				while (temp->next != NULL && strcmp(student_id, temp->item.id) != 0) temp = temp->next;
-				break;
-				//temp = temp->next;
-			}
-		} while (temp != nullptr);
-
-		//insert tuple data
-		infile >> trimester >> year;
-		bool duplicate = false;
-		for (int k = 0; k < temp->item.exam_cnt; k++) {
-			if ((year == temp->item.exam[k].year) && (trimester == temp->item.exam[k].trimester)) {
-				cout << "Duplicate Exam Record Detected for <" << student_id << ">." << endl;
-				infile >> del1;
-				for (int i = 0; i < del1; i++) {
-					infile >> del;
-					infile >> del;
-					infile >> del;
-					infile >> del;
-				}
-				duplicate = true;
-				break;
-			}
-		}
-
-		if (duplicate)
-			continue;
-
-		temp->item.exam[temp->item.exam_cnt].year = year;
-		temp->item.exam[temp->item.exam_cnt].trimester = trimester;
-		infile >> temp->item.exam[temp->item.exam_cnt].numOfSubjects;
-
-		//insert subject
-		int i = 0;
-		while (i < temp->item.exam[temp->item.exam_cnt].numOfSubjects) {
-			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].subject_code;
-			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].subject_name;
-			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].credit_hours;
-			infile >> temp->item.exam[temp->item.exam_cnt].sub[i].marks;
-			i++;
-		}
-		//calculate gpa and cgpa
-		temp->item.exam[temp->item.exam_cnt++].calculateGPA();
-		temp->item.calculateCurrentCGPA();
-
-	}
-
-	infile.close();
-	return true;
+    if (list.empty())
+        return false;
+    Node* temp = list.head;
+    bool skip1 = false;
+    ofstream outfile;
+    switch (choice) {
+    case 1:
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            cout << "ID: " << temp->item.id << endl;
+            cout << "Name: " << temp->item.name << endl;
+            cout << "Course: " << temp->item.course << endl;
+            cout << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                cout << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+            }
+            cout << endl;
+            } while (temp->next != NULL);
+        break;
+    case 2:
+        outfile.open("student_result.txt");
+        if (!outfile.is_open())
+            return false;
+        do {
+            if (skip1)
+                temp = temp->next;
+            else
+                skip1 = true;
+            outfile << "ID: " << temp->item.id << endl;
+            outfile << "Name: " << temp->item.name << endl;
+            outfile << "Course: " << temp->item.course << endl;
+            outfile << "Phone: " << temp->item.phone_no << endl;
+            if (temp->item.exam_cnt == 0) {
+                outfile << "THIS STUDENT HAVENâ€™T TAKEN ANY EXAM YET" << endl;
+            }
+            outfile << endl;
+        } while (temp->next != NULL);
+        outfile.close();
+        break;
+    default:
+        break;
+    }
+    return true;
 }
 
 bool UpdateIDandPhone(List* list) {
-	char new_id[12];
-	char new_pn[10];
+	//check if list is empty
 	if (list->empty()) {
-		cout << "Student list is empty." << endl;
-		system("PAUSE");
+		cout << "The list is empty.";
 		return false;
 	}
-	Node* temp = list->head;
-	do {
-		strcpy_s(new_id, "B");
-		strcat_s(new_id, temp->item.course);
-		strcat_s(new_id, temp->item.id);
-		strcpy_s(temp->item.id, new_id);
 
-		string temp_pn(temp->item.phone_no);
-		temp_pn.erase(temp_pn.find('-'), 1);
-		if (temp->item.phone_no[0] % 2 == 1)
-			strcpy_s(new_pn, "01");
-		else
-			strcpy_s(new_pn, "02");
-		strcat_s(new_pn, temp_pn.c_str());
-		strcpy_s(temp->item.phone_no, new_pn);
 
-		temp = temp->next;
-	} while (temp != NULL);
-	cout << "Student ID Updated." << endl;
-	system("PAUSE");
+	//traverse each node and change the format of the list.
+	Node* node = list->head;
+
+	//check if the format already changed
+	if (node->item.id[0] == 'B' || node->item.phone_no[3] != '-') {
+		cout << "The format already changed. ";
+		return false;
+	}
+
+	char temp_id[12];
+	while (node != NULL) {
+		//Student ID B <course> <ID>
+		//initialization
+
+		strcpy_s(temp_id, "B");
+		strcat_s(temp_id, node->item.course);
+		strcat_s(temp_id, node->item.id);
+		strcpy_s(node->item.id, temp_id);
+
+		//<ODD/EVEN> <PHONE NO first 3> <PHONE NO second 3>
+		//xxx-xxxx //before
+		//012345678
+		//0XOOOOOOO //after
+
+		string temp_pn(node->item.phone_no);
+		temp_pn.erase(temp_pn.find('-'), 1);//remove - from phone no
+		if ((temp_pn[0] - '0') % 2 == 1) temp_pn = "01" + temp_pn;
+		else temp_pn = "02" + temp_pn;
+		strcpy_s(node->item.phone_no, temp_pn.c_str());
+		node = node->next;
+	}
+
 	return true;
 }
 
 bool FindPotentialFirstClass(List list1, List* list2, char* course) {
 	Node* temp = list1.head;
-	Node* temp2 = list2->head;
 	int gpa_count;
 	int credit_hr;
+	bool condition;
+
 	if (list1.empty()) {
 		cout << "Student list is empty." << endl;
-		system("PAUSE");
 		return false;
 	}
 	if (!list2->empty()) {
 		cout << "List 2 is Not Empty." << endl;
-		system("PAUSE");
 		return false;
 	}
 	do {
-		if (strcmp(temp->item.course, course) != 0);
+		if (strcmp(temp->item.course, course) != 0 || temp->item.current_cgpa < 3.5 || temp->item.exam_cnt < 3 || temp->item.totalCreditsEarned < 36);
 		else {
-			if (temp->item.exam_cnt < 3) break;
-			else {
-				gpa_count = 0;
-				for (int i = 0; i < temp->item.exam_cnt; i++) {
+			gpa_count = 0;
+			condition = true;
+			for (int i = 0; i < temp->item.exam_cnt; i++) {
+				if (temp->item.exam[i].gpa < 3.5) {
+					condition = false;
+					break;
+				}
+				if (temp->item.exam[i].gpa >= 3.75) {
 					credit_hr = 0;
 					for (int j = 0; j < temp->item.exam[i].numOfSubjects; j++) {
 						credit_hr += temp->item.exam[i].sub[j].credit_hours;
 					}
-					if (credit_hr < 12) {
-						break;
-					}
-					if (temp->item.exam[i].gpa < 3.5) break;
-					if (temp->item.exam[i].gpa >= 3.75) gpa_count++;
+					if (credit_hr >= 12) gpa_count++;
 				}
-				if (gpa_count >= 3) {
-					list2->insert(temp->item);
-				}
+				// anything between 3.5 and 3.75 is not counted
 			}
-			
-				
+			if (condition && gpa_count >= 3) list2->insert(temp->item);
 		}
 		temp = temp->next;
 	} while (temp != NULL);
-	if (!list2->empty())
-		return true;
+	return true;
 }
