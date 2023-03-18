@@ -75,6 +75,7 @@ using namespace std;
 
 //file id filter for student.txt
 //VARIABLE.substr(<INSERT HERE>, line.length() - <INSERT HERE>).c_str())
+
 #define STU_F_ID 13
 #define STU_F_NAME 7
 #define STU_F_COURSE 9
@@ -143,10 +144,24 @@ void main() {
 			//FilterStudent(*stud_list, temp_list, programme, 2020, 30);
 			break;
 		case 7:
-			//UpdateIDandPhone(stud_list);
+			if (!UpdateIDandPhone(stud_list)) {
+				cout << "failed\n";
+			}
 			break;
 		case 8:
-			//FindPotentialFirstClass(*stud_list, temp_list, programme);
+			cout << "Please choose a programme to search: ";
+			cin >> programme;
+			cin.ignore();
+			cout << endl;
+			if (!FindPotentialFirstClass(*stud_list, temp_list, programme)){
+				cout << "There is no student in " << programme << " that has potential to get first class." << endl;
+				system("PAUSE");
+			}
+			else{
+				PrintList(*temp_list, 1);
+				cout << "First class student list printed successfully" << endl;
+				system("PAUSE");
+			}
 		default:
 			break;
 		}
@@ -301,4 +316,87 @@ bool PrintList(List list, int choice) {
         break;
     }
     return true;
+}
+
+bool UpdateIDandPhone(List* list) {
+	//check if list is empty
+	if (list->empty()) {
+		cout << "The list is empty.";
+		return false;
+	}
+
+
+	//traverse each node and change the format of the list.
+	Node* node = list->head;
+
+	//check if the format already changed
+	if (node->item.id[0] == 'B' || node->item.phone_no[3] != '-') {
+		cout << "The format already changed. ";
+		return false;
+	}
+
+	char temp_id[12];
+	while (node != NULL) {
+		//Student ID B <course> <ID>
+		//initialization
+
+		strcpy_s(temp_id, "B");
+		strcat_s(temp_id, node->item.course);
+		strcat_s(temp_id, node->item.id);
+		strcpy_s(node->item.id, temp_id);
+
+		//<ODD/EVEN> <PHONE NO first 3> <PHONE NO second 3>
+		//xxx-xxxx //before
+		//012345678
+		//0XOOOOOOO //after
+
+		string temp_pn(node->item.phone_no);
+		temp_pn.erase(temp_pn.find('-'), 1);//remove - from phone no
+		if ((temp_pn[0] - '0') % 2 == 1) temp_pn = "01" + temp_pn;
+		else temp_pn = "02" + temp_pn;
+		strcpy_s(node->item.phone_no, temp_pn.c_str());
+		node = node->next;
+	}
+
+	return true;
+}
+
+bool FindPotentialFirstClass(List list1, List* list2, char* course) {
+	Node* temp = list1.head;
+	int gpa_count;
+	int credit_hr;
+	bool condition;
+
+	if (list1.empty()) {
+		cout << "Student list is empty." << endl;
+		return false;
+	}
+	if (!list2->empty()) {
+		cout << "List 2 is Not Empty." << endl;
+		return false;
+	}
+	do {
+		if (strcmp(temp->item.course, course) != 0 || temp->item.current_cgpa < 3.5 || temp->item.exam_cnt < 3 || temp->item.totalCreditsEarned < 36);
+		else {
+			gpa_count = 0;
+			condition = true;
+			for (int i = 0; i < temp->item.exam_cnt; i++) {
+				if (temp->item.exam[i].gpa < 3.5) {
+					condition = false;
+					break;
+				}
+				if (temp->item.exam[i].gpa >= 3.75) {
+					credit_hr = 0;
+					for (int j = 0; j < temp->item.exam[i].numOfSubjects; j++) {
+						credit_hr += temp->item.exam[i].sub[j].credit_hours;
+					}
+					if (credit_hr >= 12) gpa_count++;
+				}
+				// anything between 3.5 and 3.75 is not counted
+			}
+			if (condition && gpa_count >= 3) list2->insert(temp->item);
+		}
+		temp = temp->next;
+	} while (temp != NULL);
+	return true;
 }
