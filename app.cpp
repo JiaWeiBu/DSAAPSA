@@ -291,45 +291,42 @@ bool PrintList(List list, int choice) {
 }
 
 bool UpdateIDandPhone(List* list) {
-	//check if list is empty
+	char new_id[12];
+	char new_pn[10];
+	
 	if (list->empty()) {
-		cout << "The list is empty.";
+		cout << "Student list is empty." << endl;
+		system("PAUSE");
 		return false;
 	}
-
-
-	//traverse each node and change the format of the list.
-	Node* node = list->head;
-
+	
+	Node* temp = list->head;
+	
 	//check if the format already changed
 	if (node->item.id[0] == 'B' || node->item.phone_no[3] != '-') {
 		cout << "The format already changed. ";
 		return false;
 	}
+	
+	do {
+		strcpy_s(new_id, "B");
+		strcat_s(new_id, temp->item.course);
+		strcat_s(new_id, temp->item.id);
+		strcpy_s(temp->item.id, new_id);
 
-	char temp_id[12];
-	while (node != NULL) {
-		//Student ID B <course> <ID>
-		//initialization
+		string temp_pn(temp->item.phone_no);
+		temp_pn.erase(temp_pn.find('-'), 1);
+		if (temp->item.phone_no[0] % 2 == 1)
+			strcpy_s(new_pn, "01");
+		else
+			strcpy_s(new_pn, "02");
+		strcat_s(new_pn, temp_pn.c_str());
+		strcpy_s(temp->item.phone_no, new_pn);
 
-		strcpy_s(temp_id, "B");
-		strcat_s(temp_id, node->item.course);
-		strcat_s(temp_id, node->item.id);
-		strcpy_s(node->item.id, temp_id);
-
-		//<ODD/EVEN> <PHONE NO first 3> <PHONE NO second 3>
-		//xxx-xxxx //before
-		//012345678
-		//0XOOOOOOO //after
-
-		string temp_pn(node->item.phone_no);
-		temp_pn.erase(temp_pn.find('-'), 1);//remove - from phone no
-		if ((temp_pn[0] - '0') % 2 == 1) temp_pn = "01" + temp_pn;
-		else temp_pn = "02" + temp_pn;
-		strcpy_s(node->item.phone_no, temp_pn.c_str());
-		node = node->next;
-	}
-
+		temp = temp->next;
+	} while (temp != NULL);
+	cout << "Student ID Updated." << endl;
+	system("PAUSE");
 	return true;
 }
 
