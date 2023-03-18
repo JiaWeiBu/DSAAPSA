@@ -239,71 +239,10 @@ bool DeleteStudent(List* list, char* id) {
 }
 
 
-bool PrintList(List list, int choice) {
-	if (list.empty())
-		return false;
-
-	ofstream outfile("student_result.txt");
-	Node* temp = list.head;
-	switch (choice) {
-	case 1:
-		while (temp != nullptr) {
-			cout << "===================================" << endl;
-			if (temp->item.exam_cnt == 0) {
-				cout << "************************ " << "this is new student information";
-				temp->item.print(cout);
-				cout << " ***********************" << endl;
-				cout << "THIS STUDENT HAVEN'T TAKEN ANY EXAM YET" << endl;
-			}
-			else {
-				cout << "Student: ";
-				temp->item.print(cout);
-				cout << endl;
-				for (int i = 0; i < temp->item.exam_cnt; i++) {
-					cout << "-----------------------------------" << endl;
-					temp->item.exam[i].print(cout);
-				}
-			}
-			cout << "===================================" << endl << endl;
-			temp = temp->next;
-		}
-		break;
-	case 2:
-		if (!outfile.is_open())
-			return false;
-
-		while (temp != nullptr) {
-			outfile << "===================================" << endl;
-			if (temp->item.exam_cnt == 0) {
-				outfile << "************************** " << endl << "This is new student information";
-				temp->item.print(outfile);
-				outfile << " *************************" << endl;
-				outfile << "THIS STUDENT HAVEN'T TAKEN ANY EXAM YET" << endl;
-			}
-			else {
-				outfile << "Student: ";
-				temp->item.print(outfile);
-				outfile << endl;
-				for (int i = 0; i < temp->item.exam_cnt; i++) {
-					outfile << "-----------------------------------" << endl;
-					temp->item.exam[i].print(outfile);
-				}
-			}
-			outfile << "===================================" << endl << endl;
-			temp = temp->next;
-		}
-		outfile.close();
-		break;
-	default:
-		break;
-	}
-	return true;
-}
-
 bool InsertExamResult(const char* filename, List* list) {
 	ifstream infile;
-	Node* temp;
-	char* student_id = new char;
+	char* name_student = new char;
+	char* student_id = new char; // allocate an array of 8 character
 	char del;
 	bool con;
 	int year, trimester, del1;
@@ -321,47 +260,26 @@ bool InsertExamResult(const char* filename, List* list) {
 
 	//read in data tuple by tuple
 	con = false;
-	while (infile >> student_id) {
-		// check if the student ID is in the format "BCSXXXXXXXX", "BIAXXXXXXXX", "BIBXXXXXXXX", "BCNXXXXXXXX", or "BCTXXXXXXXX"
-		if (strncmp(student_id, "BCS", 3) == 0 && strlen(student_id) == 10 ||
-			strncmp(student_id, "BIA", 3) == 0 && strlen(student_id) == 10 ||
-			strncmp(student_id, "BIB", 3) == 0 && strlen(student_id) == 10 ||
-			strncmp(student_id, "BCN", 3) == 0 && strlen(student_id) == 10 ||
-			strncmp(student_id, "BCT", 3) == 0 && strlen(student_id) == 10) {
-			// extract the numerical part of the ID
-			char* numeric_id = student_id + 3;
-			// search for the numerical ID in the linked list
-			temp = list->head;
-			do {
-				while (temp->next != NULL && strcmp(numeric_id, temp->item.id) != 0)
-					temp = temp->next;
-				if (strcmp(numeric_id, temp->item.id) == 0)
-					break;
-				temp = temp->next;
-			} while (temp != nullptr);
-		}
-		// if the student ID is not in the format "BCSXXXXXXXX", "BIAXXXXXXXX", "BIBXXXXXXXX", "BCNXXXXXXXX", or "BCTXXXXXXXX"
-		else {
-			// extract the numerical part of the ID
-			char* numeric_id = student_id;
-			// search for the numerical ID in the linked list
-			temp = list->head;
-			do {
-				while (temp->next != NULL && strcmp(numeric_id, temp->item.id) != 0)
-					temp = temp->next;
-				if (strcmp(numeric_id, temp->item.id) == 0)
-					break;
-				temp = temp->next;
-			} while (temp != nullptr);
-		}
+	while (infile >> student_id ) {
+		Node* temp = list->head;//each search start from head
+		do {// search id in linked list
+			if (temp->item.id[0] == 'B') {
+				while (temp->next != NULL && strcmp(student_id,temp->item.id+3) != 0) temp = temp->next; //exam_cnt reset here
+				break;
+		
+			}
+
+			else {
+				while (temp->next != NULL && strcmp(student_id, temp->item.id) != 0) temp = temp->next;
+				break;
+			}
+		} while (temp != nullptr);
 
 		//insert tuple data
 		infile >> trimester >> year;
 		bool duplicate = false;
-		int j = 0;
-		do {
-			if ((year == temp->item.exam[j].year) && (trimester == temp->item.exam[j
-			].trimester)) {
+		for (int k = 0; k < temp->item.exam_cnt; k++) {
+			if ((year == temp->item.exam[k].year) && (trimester == temp->item.exam[k].trimester)) {
 				cout << "Duplicate Exam Record Detected for <" << student_id << ">." << endl;
 				infile >> del1;
 				for (int i = 0; i < del1; i++) {
@@ -373,8 +291,7 @@ bool InsertExamResult(const char* filename, List* list) {
 				duplicate = true;
 				break;
 			}
-			j++;
-		} while (j < temp->item.exam_cnt);
+		}
 
 		if (duplicate)
 			continue;
@@ -395,9 +312,9 @@ bool InsertExamResult(const char* filename, List* list) {
 		//calculate gpa and cgpa
 		temp->item.exam[temp->item.exam_cnt++].calculateGPA();
 		temp->item.calculateCurrentCGPA();
-
 	}
 
 	infile.close();
 	return true;
 }
+
