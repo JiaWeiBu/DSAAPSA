@@ -290,6 +290,113 @@ bool PrintList(List list, int choice) {
     return true;
 }
 
+bool PrintStatistic(List list) {
+	//check for empty list
+	if (list.empty()) {
+		cout << "List is empty" << endl;
+		return false;
+	}
+
+	//initialize variables
+	int cs, ia, ib, cn, ct;
+	int noSemester, emptyResult;
+	double cgpa, noSubject, noCredit;
+	cs = ia = ib = cn = ct = cgpa = noSubject = noCredit = emptyResult = noSemester = 0;
+
+	//point to head
+	Node* node = list.head;
+	
+	//get student count
+	while (node != NULL) {
+		if (strcmp(node->item.course, "CS") == 0) 
+			cs++;
+		else if (strcmp(node->item.course, "IA") == 0) 
+			ia++;
+		else if (strcmp(node->item.course, "IB") == 0) 
+			ib++;
+		else if (strcmp(node->item.course, "CN") == 0) 
+			cn++;
+		else if (strcmp(node->item.course, "CT") == 0) 
+			ct++;
+		else {
+			cout << "Student ID <" << node->item.id << "> from <" << node->item.course << "> is not part of FICT.\n";
+			node = node->next;
+			continue;
+		}
+
+		//check non taken exam student
+		if (node->item.exam_cnt == 0) 
+			emptyResult++;
+
+		//get total number of subjects, semesters, credit hours and cgpa
+		for (int i = 0; i < node->item.exam_cnt; i++) {
+			noSubject += node->item.exam[i].numOfSubjects;
+			noSemester++;
+		}
+		cgpa += node->item.current_cgpa;
+		noCredit += node->item.totalCreditsEarned;
+
+		//point to next node
+		node = node->next;
+	}
+
+	//print statistics and calculate average cgpa, subject taken and credit hours earned
+	cout << "Total Students: " << cs + ia + ib + cn + ct << endl;
+	cout << "CS Students: " << cs << endl;
+	cout << "IA Students: " << ia << endl;
+	cout << "IB Students: " << ib << endl;
+	cout << "CN Students: " << cn << endl;
+	cout << "CT Students: " << ct << endl;
+	cout << endl;
+	cout << "Average CGPA: " << cgpa / (cs + ia + ib + cn + ct - emptyResult) << endl;
+	cout << "Average noSubjects Taken Per Semester: " << noSubject / noSemester << endl;
+	cout << "Average Credits Earned Per Semester: " << noCredit / noSemester << endl;
+
+	return true;
+}
+
+bool FilterStudent(List list1, List* list2, char* course, int year, int totalcredit) {
+	//check for empty list
+	if (list1.empty()) {
+		cout << "The list is empty.";
+		return false;
+	}
+
+	if (!list2->empty()) {
+		cout << "Filter list is not empty.";
+		return false;
+	}
+
+	//point to head
+	Node* node = list1.head;
+
+	while (node != NULL) {
+		//initialize variables
+		int filterYear = 0; 
+		int filterCredit = 0;
+
+		//get year from student ID
+		if (node->item.id[0] != 'B')
+			filterYear = (node->item.id[0] - '0') * 10 + (node->item.id[1] - '0');
+		else 
+			filterYear = (node->item.id[3] - '0') * 10 + (node->item.id[4] - '0');
+
+		//check if year is 19XX or 20XX
+		if (filterYear <= 50) 
+			filterYear += 2000;
+		else 
+			filterYear += 1900; 
+
+		//compare the filter results, if filter results matches the list, result is inserted into list2
+		if ((strcmp(node->item.course, course) == 0) && (filterYear == year) && (node->item.totalCreditsEarned >= totalcredit)) 
+			list2->insert(node->item);
+
+		//point to next node
+		node = node->next;
+	}
+	return true;
+}
+
 bool UpdateIDandPhone(List* list) {
 	char new_id[12];
 	char new_pn[10];
